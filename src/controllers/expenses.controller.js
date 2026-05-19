@@ -7,16 +7,25 @@ const {
   updatEexpenses,
   deletEexpenses,
 } = require('../services/expenses.service');
-const { isValid } = require('../services/helpers');
+const { hasRequiredNonEmptyFields } = require('../services/helpers');
+
+const REQUIRED_EXPENSE_FIELDS = [
+  'userId',
+  'spentAt',
+  'title',
+  'amount',
+  'category',
+  'note',
+];
 
 function listExpenses(req, res) {
   const expenses = getExpenses(req.query);
 
-  if (expenses) {
-    res.json(expenses);
-  } else {
-    res.status(404).end();
+  if (expenses === null) {
+    return res.status(404).end();
   }
+
+  res.json(expenses);
 }
 
 function getExpense(req, res) {
@@ -32,7 +41,7 @@ function getExpense(req, res) {
 function createExpense(req, res) {
   const body = req.body ?? {};
 
-  if (!isValid(Object.values(body))) {
+  if (!hasRequiredNonEmptyFields(body, REQUIRED_EXPENSE_FIELDS)) {
     return res.status(400).end();
   }
 
